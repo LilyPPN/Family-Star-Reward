@@ -1,0 +1,466 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{max-width:680px;margin:0 auto;padding:.75rem 0 2rem}
+.header{text-align:center;padding:1.25rem 0 .75rem}
+.header h1{font-size:21px;font-weight:500;color:var(--text-primary)}
+.header p{font-size:13px;color:var(--text-muted);margin-top:3px}
+.tabs{display:flex;gap:5px;margin-bottom:1rem;background:var(--surface-1);border-radius:var(--radius);padding:4px}
+.tab{flex:1;padding:7px 4px;border:none;background:transparent;border-radius:6px;font-size:12px;cursor:pointer;color:var(--text-secondary);transition:all .15s;white-space:nowrap}
+.tab.active{background:var(--surface-2);color:var(--text-primary);font-weight:500;border:0.5px solid var(--border)}
+.section{display:none}.section.active{display:block}
+.slabel{font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;margin-top:.75rem}
+.slabel:first-child{margin-top:0}
+
+/* Members */
+.members-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:.25rem}
+.mc{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:.8rem .4rem;text-align:center;cursor:pointer;transition:border .12s,transform .1s;position:relative}
+.mc:hover{border-color:var(--border-strong)}.mc:active{transform:scale(.96)}
+.mc.sel{border:2px solid var(--border-accent)}
+.mc-av{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 7px}
+.mc-name{font-size:12px;font-weight:500;color:var(--text-primary)}
+.mc-role{font-size:10px;color:var(--text-muted);margin-top:1px}
+.mc-stars{font-size:11px;color:var(--text-secondary);margin-top:4px}
+.mc-badge{position:absolute;top:5px;right:5px;background:var(--bg-accent);color:var(--text-accent);font-size:9px;padding:1px 5px;border-radius:8px;font-weight:500}
+
+/* Tasks */
+.tasks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:7px}
+.tbtn{background:var(--surface-2);border:0.5px solid var(--border);border-radius:10px;padding:.75rem .7rem;text-align:left;cursor:pointer;transition:all .12s;width:100%}
+.tbtn:hover{border-color:var(--border-strong)}.tbtn:active{transform:scale(.97)}
+.t-icon{font-size:22px;margin-bottom:4px}
+.t-name{font-size:12px;font-weight:500;color:var(--text-primary);line-height:1.3}
+.t-note{font-size:10px;color:var(--text-muted);margin-top:2px;line-height:1.3}
+.t-pts{font-size:11px;color:var(--text-muted);margin-top:4px}
+.t-pts b{color:var(--text-accent)}
+
+/* Toast */
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface-2);border:0.5px solid var(--border-success);color:var(--text-success);padding:9px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;transition:transform .28s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Progress tab */
+.week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;background:var(--surface-1);border-radius:var(--radius);padding:.5rem .75rem}
+.week-lbl{font-size:13px;font-weight:500;color:var(--text-primary)}
+.week-btn{background:none;border:0.5px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;color:var(--text-secondary)}
+.week-btn:hover{background:var(--surface-2)}
+.day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:.75rem}
+.day-col{background:var(--surface-2);border:0.5px solid var(--border);border-radius:8px;padding:5px 3px;text-align:center;min-height:70px}
+.day-col.today{border-color:var(--border-accent)}
+.day-header{font-size:10px;color:var(--text-muted);margin-bottom:4px}
+.day-date{font-size:11px;font-weight:500;color:var(--text-secondary);margin-bottom:4px}
+.day-stars{font-size:12px;font-weight:500;color:var(--text-primary)}
+.day-dot-wrap{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;margin-top:3px}
+.day-dot{width:6px;height:6px;border-radius:50%}
+
+.goal-section{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:.75rem}
+.goal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.goal-title{font-size:14px;font-weight:500;color:var(--text-primary)}
+.goal-week{font-size:12px;color:var(--text-muted)}
+.goal-member{margin-bottom:.6rem}
+.goal-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.goal-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+.goal-name{font-size:12px;font-weight:500;color:var(--text-primary);min-width:60px}
+.goal-bar-wrap{flex:1;background:var(--surface-1);border-radius:10px;height:8px;overflow:hidden;border:0.5px solid var(--border)}
+.goal-bar{height:100%;border-radius:10px;transition:width .6s ease}
+.goal-nums{font-size:11px;color:var(--text-secondary);white-space:nowrap;min-width:52px;text-align:right}
+.goal-done{font-size:11px;color:var(--text-success);font-weight:500}
+.goal-input-row{display:flex;align-items:center;gap:6px;margin-bottom:.5rem}
+.goal-input-label{font-size:12px;color:var(--text-secondary);min-width:70px}
+.goal-input{width:70px;padding:4px 8px;font-size:12px;border-radius:6px;border:0.5px solid var(--border);background:var(--surface-1);color:var(--text-primary)}
+
+/* Log */
+.log-list{display:flex;flex-direction:column;gap:7px}
+.log-item{background:var(--surface-2);border:0.5px solid var(--border);border-radius:10px;padding:.7rem .9rem;display:flex;align-items:center;gap:10px}
+.log-emoji{font-size:18px;width:28px;text-align:center}
+.log-info{flex:1}
+.log-who{font-size:13px;font-weight:500;color:var(--text-primary)}
+.log-task{font-size:11px;color:var(--text-secondary);margin-top:1px}
+.log-time{font-size:10px;color:var(--text-muted);margin-top:1px}
+.log-pts{font-size:12px;font-weight:500;color:var(--text-accent);white-space:nowrap}
+.log-del{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:14px;padding:2px 5px;border-radius:4px}
+.log-del:hover{color:var(--text-danger)}
+
+/* Rewards */
+.rewards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-bottom:.75rem}
+.reward-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:.85rem .75rem;text-align:center;position:relative;overflow:hidden}
+.reward-icon{font-size:28px;margin-bottom:6px}
+.reward-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.reward-cost{font-size:12px;color:var(--text-accent);margin-top:3px;font-weight:500}
+.reward-btn{margin-top:.6rem;width:100%;padding:5px;font-size:12px;border-radius:6px;border:0.5px solid var(--border-accent);background:var(--bg-accent);color:var(--text-accent);cursor:pointer;transition:all .12s}
+.reward-btn:hover{background:var(--fill-accent);color:var(--on-accent)}
+.reward-btn:disabled{opacity:.4;cursor:not-allowed}
+.reward-who{margin-bottom:.6rem}
+.reward-who-label{font-size:11px;color:var(--text-muted);margin-bottom:5px}
+.rwho-grid{display:flex;gap:6px}
+.rwho-btn{flex:1;padding:5px;border:0.5px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;font-size:13px;text-align:center;transition:all .12s}
+.rwho-btn.active{border-color:var(--border-accent);background:var(--bg-accent)}
+.redeemed-log{display:flex;flex-direction:column;gap:6px}
+.redeemed-item{background:var(--surface-2);border:0.5px solid var(--border);border-radius:8px;padding:.6rem .85rem;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)}
+
+.empty{text-align:center;padding:2rem;color:var(--text-muted);font-size:13px}
+.chip{display:inline-block;background:var(--bg-success);color:var(--text-success);font-size:10px;padding:2px 7px;border-radius:8px;font-weight:500;margin-left:5px}
+
+/* Rank */
+.rank-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:.75rem}
+.rs-card{background:var(--surface-1);border-radius:var(--radius);padding:.65rem .4rem;text-align:center}
+.rs-num{font-size:17px;font-weight:500;color:var(--text-primary)}
+.rs-lbl{font-size:10px;color:var(--text-muted);margin-top:1px}
+.rank-list{display:flex;flex-direction:column;gap:8px}
+.rank-item{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:.9rem 1rem;display:flex;align-items:center;gap:10px}
+.rank-item:first-child{border-color:var(--border-warning)}
+.rank-pos{font-size:20px;width:28px;text-align:center}
+.rank-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px}
+.rank-info{flex:1;min-width:0}
+.rank-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.rank-role{font-size:10px;color:var(--text-muted)}
+.rank-bar-wrap{margin-top:5px;background:var(--surface-1);border-radius:10px;height:6px;overflow:hidden;border:0.5px solid var(--border)}
+.rank-bar{height:100%;border-radius:10px;background:var(--fill-accent);transition:width .7s ease}
+.rank-pts{text-align:right;min-width:48px}
+.rank-pts-num{font-size:15px;font-weight:500;color:var(--text-primary)}
+.rank-pts-lbl{font-size:10px;color:var(--text-muted)}
+</style>
+
+<div class="app">
+<div class="header">
+  <h1>⭐ Ngôi Sao Ngoan</h1>
+  <p>Nhà Duy &amp; Ly · Alex &amp; Muka</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('home')">🏠 Thêm sao</button>
+  <button class="tab" onclick="showTab('progress')">📅 Tiến trình</button>
+  <button class="tab" onclick="showTab('rank')">🏆 Xếp hạng</button>
+  <button class="tab" onclick="showTab('rewards')">🎁 Phần thưởng</button>
+  <button class="tab" onclick="showTab('log')">📋 Nhật ký</button>
+</div>
+
+<div id="tab-home" class="section active">
+  <p class="slabel">Ai đã làm việc nhà?</p>
+  <div class="members-grid" id="members-grid"></div>
+  <p class="slabel">Chọn việc đã làm</p>
+  <div class="tasks-grid" id="tasks-grid"></div>
+</div>
+
+<div id="tab-progress" class="section">
+  <div class="week-nav">
+    <button class="week-btn" onclick="changeWeek(-1)">← Tuần trước</button>
+    <span class="week-lbl" id="week-label"></span>
+    <button class="week-btn" onclick="changeWeek(1)">Tuần sau →</button>
+  </div>
+  <div class="day-grid" id="day-grid"></div>
+  <div class="goal-section">
+    <div class="goal-header">
+      <span class="goal-title">🎯 Mục tiêu tuần</span>
+      <span class="goal-week" id="goal-week-label"></span>
+    </div>
+    <div class="goal-input-row" style="margin-bottom:.75rem">
+      <span class="goal-input-label">Mục tiêu (NSN/tuần):</span>
+      <input class="goal-input" type="number" id="goal-input" min="1" max="50" step="0.5" onchange="saveGoal()" placeholder="10">
+    </div>
+    <div id="goal-bars"></div>
+  </div>
+</div>
+
+<div id="tab-rank" class="section">
+  <div class="rank-summary" id="rank-summary"></div>
+  <div class="rank-list" id="rank-list"></div>
+</div>
+
+<div id="tab-rewards" class="section">
+  <p class="slabel">Chọn người đổi thưởng</p>
+  <div class="reward-who">
+    <div class="rwho-grid" id="rwho-grid"></div>
+  </div>
+  <p class="slabel">Danh sách phần thưởng</p>
+  <div class="rewards-grid" id="rewards-grid"></div>
+  <p class="slabel">Lịch sử đổi thưởng</p>
+  <div class="redeemed-log" id="redeemed-log"></div>
+</div>
+
+<div id="tab-log" class="section">
+  <div class="log-list" id="log-list"></div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const MEMBERS=[
+  {id:'dad',name:'Bố Duy',role:'Dad',emoji:'👨',color:'#E6F1FB'},
+  {id:'mom',name:'Mẹ Ly', role:'Mom',emoji:'👩',color:'#FAEEDA'},
+  {id:'alex',name:'Alex', role:'Son',emoji:'👦',color:'#EAF3DE'},
+  {id:'muka',name:'Muka', role:'Son',emoji:'🧒',color:'#EEEDFE'},
+];
+const MEMBER_COLORS_BAR=['#378ADD','#BA7517','#639922','#7F77DD'];
+
+const TASKS=[
+  {id:'t1', name:'Tưới cây',           emoji:'🌿',pts:0.5,  note:''},
+  {id:'t2', name:'Dọn robot hút bụi',  emoji:'🤖',pts:0.25, note:''},
+  {id:'t3', name:'Đi chợ',             emoji:'🛒',pts:0.5,  note:''},
+  {id:'t4', name:'Lấy đồ Shopee',      emoji:'📦',pts:0.5,  note:''},
+  {id:'t5', name:'Đặt nồi cơm',        emoji:'🍚',pts:0.25, note:''},
+  {id:'t6', name:'Nấu ăn',             emoji:'🍳',pts:1,    note:'1–3 NSN tùy món'},
+  {id:'t7', name:'Dọn cơm',            emoji:'🥢',pts:0.25, note:'Lấy bát đĩa, xới cơm'},
+  {id:'t8', name:'Dọn mâm',            emoji:'🫙',pts:0.5,  note:'Bỏ bát vào bồn, lau bàn, cất thức ăn'},
+  {id:'t9', name:'Úp bát máy rửa bát', emoji:'🍽️',pts:1,   note:''},
+  {id:'t10',name:'Lau, dọn bếp',       emoji:'🧽',pts:0.5,  note:''},
+  {id:'t11',name:'Giặt quần áo',       emoji:'👕',pts:0.25, note:'Cho vào máy, đổ nước giặt, bấm nút'},
+  {id:'t12',name:'Sấy quần áo',        emoji:'🌀',pts:0.25, note:'Lấy quần áo vào máy sấy'},
+  {id:'t13',name:'Gấp quần áo',        emoji:'🗂️',pts:1,   note:'Gấp và cất vào tủ'},
+  {id:'t14',name:'Dọn bàn học',        emoji:'📚',pts:0.25, note:''},
+  {id:'t15',name:'Dọn dẹp đồ đạc',    emoji:'🏠',pts:0.75, note:'Gọn gàng 0.5–1 NSN'},
+  {id:'t16',name:'Gấp chăn, màn',      emoji:'🛏️',pts:0.25,note:''},
+  {id:'t17',name:'Nhặt, rửa rau',      emoji:'🥬',pts:0.25, note:''},
+  {id:'t18',name:'Chăm sóc cây, ban công',emoji:'🌱',pts:0.5,note:''},
+];
+
+const REWARDS=[
+  {id:'r1',name:'Xem phim rạp',    emoji:'🎬',cost:5},
+  {id:'r2',name:'Ăn kem tùy chọn', emoji:'🍦',cost:3},
+  {id:'r3',name:'Chơi game 1 tiếng',emoji:'🎮',cost:4},
+  {id:'r4',name:'Chọn món ăn tối', emoji:'🍜',cost:3},
+  {id:'r5',name:'Ngủ muộn cuối tuần',emoji:'😴',cost:5},
+  {id:'r6',name:'Tiền thưởng 50k', emoji:'💰',cost:10},
+  {id:'r7',name:'Đi chơi công viên',emoji:'🎡',cost:8},
+  {id:'r8',name:'Mua đồ yêu thích', emoji:'🛍️',cost:15},
+];
+
+function loadData(k,def){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch(e){return def;}}
+function saveData(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+let stars=loadData('nsn_stars4',{});
+let log=loadData('nsn_log4',[]);
+let redeemed=loadData('nsn_redeemed4',[]);
+let weekGoal=loadData('nsn_goal4',10);
+let sel=null;
+let rewardSel=MEMBERS[0].id;
+let weekOffset=0;
+
+function getStars(id){return stars[id]||0;}
+function save(){saveData('nsn_stars4',stars);saveData('nsn_log4',log);}
+
+/* ---- Helpers ---- */
+function getWeekDates(offset){
+  const now=new Date();
+  const day=now.getDay();
+  const monday=new Date(now);
+  monday.setDate(now.getDate()-((day+6)%7)+offset*7);
+  monday.setHours(0,0,0,0);
+  const days=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(monday);
+    d.setDate(monday.getDate()+i);
+    days.push(d);
+  }
+  return days;
+}
+function isSameDay(a,b){
+  return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+}
+function dateKey(d){return d.toISOString().slice(0,10);}
+function starsForDay(memberId,date){
+  return log.filter(l=>l.mid===memberId&&isSameDay(new Date(l.ts),date)).reduce((s,l)=>s+l.pts,0);
+}
+function starsForWeek(memberId,days){
+  return days.reduce((s,d)=>s+starsForDay(memberId,d),0);
+}
+
+/* ---- Render: Home ---- */
+function renderMembers(){
+  document.getElementById('members-grid').innerHTML=MEMBERS.map(m=>{
+    const isSel=sel===m.id;
+    return `<div class="mc${isSel?' sel':''}" onclick="selectMember('${m.id}')">
+      ${isSel?'<span class="mc-badge">✓</span>':''}
+      <div class="mc-av" style="background:${m.color}">${m.emoji}</div>
+      <div class="mc-name">${m.name}</div>
+      <div class="mc-role">${m.role}</div>
+      <div class="mc-stars">⭐ ${getStars(m.id).toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+function renderTasks(){
+  document.getElementById('tasks-grid').innerHTML=TASKS.map(t=>`
+    <button class="tbtn" onclick="awardStar('${t.id}')">
+      <div class="t-icon">${t.emoji}</div>
+      <div class="t-name">${t.name}</div>
+      ${t.note?`<div class="t-note">${t.note}</div>`:''}
+      <div class="t-pts">+<b>${t.pts} NSN</b></div>
+    </button>`).join('');
+}
+function selectMember(id){sel=sel===id?null:id;renderMembers();}
+function awardStar(tid){
+  if(!sel){showToast('⚠️ Chọn thành viên trước nhé!');return;}
+  const t=TASKS.find(x=>x.id===tid);
+  const m=MEMBERS.find(x=>x.id===sel);
+  if(!t||!m)return;
+  stars[m.id]=(stars[m.id]||0)+t.pts;
+  log.push({mid:m.id,tid:t.id,pts:t.pts,ts:Date.now()});
+  save();
+  renderMembers();
+  showToast(`${m.emoji} ${m.name} +${t.pts} ⭐  ${t.name}`);
+}
+
+/* ---- Render: Progress ---- */
+function renderProgress(){
+  const days=getWeekDates(weekOffset);
+  const today=new Date();
+  const DAYS_VN=['T2','T3','T4','T5','T6','T7','CN'];
+  const wStart=days[0],wEnd=days[6];
+  const fmt=d=>d.getDate()+'/'+(d.getMonth()+1);
+  document.getElementById('week-label').textContent=`${fmt(wStart)} – ${fmt(wEnd)}`;
+  document.getElementById('goal-week-label').textContent=`Tuần ${fmt(wStart)}`;
+
+  /* Day grid */
+  document.getElementById('day-grid').innerHTML=days.map((d,i)=>{
+    const isToday=isSameDay(d,today);
+    const dayStars=MEMBERS.map(m=>starsForDay(m.id,d));
+    const total=dayStars.reduce((s,x)=>s+x,0);
+    const dots=MEMBERS.map((m,mi)=>dayStars[mi]>0?`<div class="day-dot" style="background:${MEMBER_COLORS_BAR[mi]}" title="${m.name}: ${dayStars[mi].toFixed(1)}"></div>`:'').join('');
+    return `<div class="day-col${isToday?' today':''}">
+      <div class="day-header">${DAYS_VN[i]}</div>
+      <div class="day-date">${d.getDate()}/${d.getMonth()+1}</div>
+      <div class="day-stars">${total>0?total.toFixed(1):'–'}</div>
+      <div class="day-dot-wrap">${dots}</div>
+    </div>`;
+  }).join('');
+
+  /* Goal input */
+  document.getElementById('goal-input').value=weekGoal;
+
+  /* Goal bars */
+  document.getElementById('goal-bars').innerHTML=MEMBERS.map((m,mi)=>{
+    const earned=starsForWeek(m.id,days);
+    const pct=Math.min(Math.round(earned/weekGoal*100),100);
+    const done=earned>=weekGoal;
+    return `<div class="goal-member">
+      <div class="goal-row">
+        <div class="goal-av" style="background:${m.color}">${m.emoji}</div>
+        <div class="goal-name">${m.name}</div>
+        <div class="goal-bar-wrap"><div class="goal-bar" style="width:${pct}%;background:${MEMBER_COLORS_BAR[mi]}"></div></div>
+        <div class="goal-nums">${done?'<span class="goal-done">✓ Đạt!</span>':`${earned.toFixed(1)}/${weekGoal}`}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function changeWeek(dir){weekOffset+=dir;renderProgress();}
+function saveGoal(){weekGoal=parseFloat(document.getElementById('goal-input').value)||10;saveData('nsn_goal4',weekGoal);renderProgress();}
+
+/* ---- Render: Rank ---- */
+function renderRank(){
+  const sorted=[...MEMBERS].sort((a,b)=>getStars(b.id)-getStars(a.id));
+  const max=Math.max(...sorted.map(m=>getStars(m.id)),1);
+  const medals=['🥇','🥈','🥉','4️⃣'];
+  document.getElementById('rank-summary').innerHTML=MEMBERS.map(m=>`
+    <div class="rs-card">
+      <div style="font-size:18px;margin-bottom:3px">${m.emoji}</div>
+      <div class="rs-num">${getStars(m.id).toFixed(1)}</div>
+      <div class="rs-lbl">${m.name.split(' ')[0]}</div>
+    </div>`).join('');
+  document.getElementById('rank-list').innerHTML=sorted.map((m,i)=>{
+    const s=getStars(m.id);
+    const pct=Math.round(s/max*100);
+    return `<div class="rank-item">
+      <div class="rank-pos">${medals[i]}</div>
+      <div class="rank-av" style="background:${m.color}">${m.emoji}</div>
+      <div class="rank-info">
+        <div class="rank-name">${m.name}</div>
+        <div class="rank-role">${m.role}</div>
+        <div class="rank-bar-wrap"><div class="rank-bar" style="width:${pct}%"></div></div>
+      </div>
+      <div class="rank-pts"><div class="rank-pts-num">${s.toFixed(1)}</div><div class="rank-pts-lbl">NSN</div></div>
+    </div>`;
+  }).join('');
+}
+
+/* ---- Render: Rewards ---- */
+function renderRewards(){
+  document.getElementById('rwho-grid').innerHTML=MEMBERS.map(m=>`
+    <button class="rwho-btn${rewardSel===m.id?' active':''}" onclick="selectRewardWho('${m.id}')">
+      ${m.emoji} ${m.name.split(' ').pop()}
+    </button>`).join('');
+  const m=MEMBERS.find(x=>x.id===rewardSel);
+  const bal=getStars(rewardSel);
+  document.getElementById('rewards-grid').innerHTML=REWARDS.map(r=>{
+    const canAfford=bal>=r.cost;
+    return `<div class="reward-card">
+      <div class="reward-icon">${r.emoji}</div>
+      <div class="reward-name">${r.name}</div>
+      <div class="reward-cost">⭐ ${r.cost} NSN</div>
+      <button class="reward-btn" ${!canAfford?'disabled':''} onclick="redeem('${r.id}')">
+        ${canAfford?'Đổi thưởng':'Chưa đủ sao'}
+      </button>
+    </div>`;
+  }).join('');
+  const rd=redeemed.slice().reverse().slice(0,10);
+  document.getElementById('redeemed-log').innerHTML=rd.length?rd.map(r=>{
+    const m2=MEMBERS.find(x=>x.id===r.mid)||{emoji:'?',name:'?'};
+    const rw=REWARDS.find(x=>x.id===r.rid)||{emoji:'?',name:'?'};
+    const d=new Date(r.ts);
+    return `<div class="redeemed-item">${rw.emoji}<span>${m2.emoji} ${m2.name} đổi <b>${rw.name}</b> — ${r.cost} NSN · ${d.toLocaleDateString('vi-VN')}</span></div>`;
+  }).join(''):'<div class="empty">Chưa có lần đổi thưởng nào</div>';
+}
+function selectRewardWho(id){rewardSel=id;renderRewards();}
+function redeem(rid){
+  const r=REWARDS.find(x=>x.id===rid);
+  const m=MEMBERS.find(x=>x.id===rewardSel);
+  if(!r||!m)return;
+  if(getStars(rewardSel)<r.cost){showToast('⚠️ Không đủ sao!');return;}
+  stars[rewardSel]-=r.cost;
+  redeemed.push({mid:m.id,rid:r.id,cost:r.cost,ts:Date.now()});
+  save();saveData('nsn_redeemed4',redeemed);
+  showToast(`🎁 ${m.emoji} ${m.name} đổi được "${r.name}"!`);
+  renderRewards();
+  renderMembers();
+}
+
+/* ---- Render: Log ---- */
+function renderLog(){
+  const el=document.getElementById('log-list');
+  if(!log.length){el.innerHTML='<div class="empty">Chưa có hoạt động nào.<br>Hãy thêm sao ở tab đầu tiên!</div>';return;}
+  el.innerHTML=[...log].reverse().slice(0,50).map((l,i)=>{
+    const m=MEMBERS.find(x=>x.id===l.mid)||{emoji:'?',name:'?'};
+    const t=TASKS.find(x=>x.id===l.tid)||{emoji:'?',name:l.tid};
+    const d=new Date(l.ts);
+    const time=d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})+' · '+d.toLocaleDateString('vi-VN');
+    const idx=log.length-1-i;
+    return `<div class="log-item">
+      <div class="log-emoji">${t.emoji}</div>
+      <div class="log-info">
+        <div class="log-who">${m.emoji} ${m.name}</div>
+        <div class="log-task">${t.name}</div>
+        <div class="log-time">${time}</div>
+      </div>
+      <div class="log-pts">+${l.pts} ⭐</div>
+      <button class="log-del" onclick="deleteLog(${idx})" title="Xóa">✕</button>
+    </div>`;
+  }).join('');
+}
+function deleteLog(idx){
+  const entry=log[idx];
+  if(!entry)return;
+  stars[entry.mid]=Math.max(0,(stars[entry.mid]||0)-entry.pts);
+  log.splice(idx,1);
+  save();renderLog();renderMembers();
+  showToast('🗑️ Đã xóa hoạt động');
+}
+
+/* ---- Toast ---- */
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+/* ---- Tab nav ---- */
+function showTab(tab){
+  const tabs=['home','progress','rank','rewards','log'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='progress')renderProgress();
+  if(tab==='rank')renderRank();
+  if(tab==='rewards')renderRewards();
+  if(tab==='log')renderLog();
+}
+
+renderMembers();
+renderTasks();
+</script>
